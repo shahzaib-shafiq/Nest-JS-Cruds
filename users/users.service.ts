@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-
+import { CreateUserDto } from './dto/create-user.dto';
 @Injectable()
 export class UsersService {
     private users = [
@@ -17,7 +17,6 @@ export class UsersService {
         }
         return user;
     }
-
     deleteUser(id: number) {
         const userIndex = this.users.findIndex(user => user.id === id);
         if (userIndex === -1) {
@@ -26,4 +25,20 @@ export class UsersService {
         this.users.splice(userIndex, 1);
         return { message: `User with ID ${id} deleted successfully` };
     }
+    create(userDto: CreateUserDto) {
+        const newUser = { id: this.users.length++, ...userDto };
+        this.users.push(newUser);
+        return newUser;
+    }
+    updateUser(id: string, data: Partial<{ name: string; email: string }>) {
+        const user = this.users.find(u => u.id.toString() === id);
+        if (!user) return { message: 'User not found' };
+        if (!data) return { message: 'No data provided' };
+
+        if ('name' in data && data.name !== undefined) user.name = data.name;
+        if ('email' in data && data.email !== undefined) user.email = data.email;
+
+        return { message: 'User updated', user };
+    }
+
 }
